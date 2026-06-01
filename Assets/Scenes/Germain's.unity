@@ -7950,6 +7950,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Sun (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5861714702604661659, guid: 3054b0c140b93a246a7fcacbf428f695, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6490583008349727009, guid: 3054b0c140b93a246a7fcacbf428f695, type: 3}
       propertyPath: m_LocalScale.x
       value: 27896.936

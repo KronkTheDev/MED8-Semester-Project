@@ -1,4 +1,4 @@
-using UnityEngine;
+ using UnityEngine;
 using System.Collections;
 
 public class PlanetManager : MonoBehaviour
@@ -34,7 +34,7 @@ public class PlanetManager : MonoBehaviour
     void OnCollisionEnter(Collision collision) {
     if (gameEnded) return;
 
-    // PHASE 1: Only triggered by "Life" objects
+    // PHASE 2
     if (collision.gameObject.CompareTag("Life") && !isPhase2) {
         currentLife++;
         
@@ -42,12 +42,12 @@ public class PlanetManager : MonoBehaviour
         collision.gameObject.GetComponent<Rigidbody>().isKinematic = true;
         collision.gameObject.transform.SetParent(this.transform);
 
-        // ONLY start Phase 2 if the Life Goal is reached
+        // ONLY start Phase 3 if the Life Goal is reached
         if (currentLife >= lifeGoal) {
             StartCoroutine(TransitionToPhase3());
         }
     } 
-    // PHASE 2: Only triggered by "Asteroid" objects
+    // PHASE 3:
     else if (collision.gameObject.CompareTag("Asteroid") && isPhase2) {
         // Reduce planet scale
         transform.localScale -= Vector3.one * scaleLossPerHit;

@@ -24,7 +24,7 @@ public class AsteroidSpawner : MonoBehaviour {
         // THE SWITCH: Only attack if the Canvas is visible on screen
         bool isAttacking = triggerCanvas.activeInHierarchy;
 
-        // Determine a random spawn position around the spawner's location
+       
         Vector3 randomPos = transform.position + new Vector3(
             Random.Range(-spawnRange, spawnRange),
             Random.Range(-spawnRange, spawnRange),
