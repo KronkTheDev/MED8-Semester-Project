@@ -2651,6 +2651,7 @@ MonoBehaviour:
   maxScale: 200
   Stage2text: {fileID: 76172460}
   lifeSpawner: {fileID: 893422574}
+  planetManager: {fileID: 1220923805}
 --- !u!114 &1220923801
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2682,11 +2683,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09b07e51bf62738449496bbb5c4d3241, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlanetManager
+  hideVisualCues: 0
   scaleCounterCanvas: {fileID: 945177022}
   scaleCounterText: {fileID: 523672197}
   lifeGoal: 10
   lifeCounterCanvas: {fileID: 597801871}
   lifeCounterText: {fileID: 1857989210}
+  Stage2text: {fileID: 76172460}
   spawner: {fileID: 893422571}
   Stage3text: {fileID: 1263546848}
   survivalDuration: 20

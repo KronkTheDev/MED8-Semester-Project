@@ -6,7 +6,7 @@ public class StartButtonTrigger : MonoBehaviour
     [SerializeField] private AsteroidSpawner asteroidSpawner;
     [SerializeField] private PlanetManager planetManager;
     [SerializeField] private GameObject planetObject;
-    [SerializeField] private GameObject stage1Text; // ADDED: Slot for your Stage 1 text
+    [SerializeField] private GameObject stage1Text; 
 
     [Header("Menu Elements to Clean Up")]
     [SerializeField] private GameObject startText;
@@ -32,32 +32,38 @@ public class StartButtonTrigger : MonoBehaviour
 
         if (hitObject.CompareTag("ConditionA") || hitObject.name.Contains("A"))
         {
-            Debug.Log("Condition A Selection Validated via tag/name match.");
-            StartRegularGame();
+            Debug.Log("Condition A Selected (Visual Cues Enabled).");
+            // False means cues function as normal
+            if (planetManager != null) planetManager.hideVisualCues = false; 
+            StartRegularGame(false); 
         }
         else if (hitObject.CompareTag("ConditionB") || hitObject.name.Contains("B"))
         {
-            Debug.Log("Condition B Selection Validated via tag/name match.");
-            StartRegularGame();
+            Debug.Log("Condition B Selected (Visual Cues Disabled - Blind Route).");
+            // True forces all instructions and scale text to stay hidden
+            if (planetManager != null) planetManager.hideVisualCues = true; 
+            StartRegularGame(true); 
         }
     }
 
-    private void StartRegularGame()
+    private void StartRegularGame(bool isBlindRoute)
     {
         gameStarted = true;
 
-        // 1. Clean up all menu elements from the scene immediately
+        // 1. Clean up menu objects
         if (startText != null) startText.SetActive(false);
         if (startBText != null) startBText.SetActive(false);
         if (blockA != null) Destroy(blockA);
         if (blockB != null) Destroy(blockB);
 
-        // 2. Turn on the core gameplay components and Stage 1 Text
+        // 2. Wake up target game components
         if (planetObject != null) planetObject.SetActive(true);
         if (planetManager != null) planetManager.enabled = true;
         
-        // FIXED: This wakes up your Stage 1 text the exact second the game starts!
-        if (stage1Text != null) stage1Text.SetActive(true); 
+        // FIXED: Only display the initial "Stage 1" instruction text if it's NOT the blind route
+        if (stage1Text != null && !isBlindRoute) {
+            stage1Text.SetActive(true); 
+        }
         
         if (asteroidSpawner != null) 
         {
@@ -65,9 +71,9 @@ public class StartButtonTrigger : MonoBehaviour
             asteroidSpawner.StartSpawningLoop(); 
         }
 
-        Debug.Log("Gameplay loops successfully activated!");
+        Debug.Log($"Gameplay activated. Blind Mode Status: {isBlindRoute}");
 
-        // 3. Destroy the button itself since the game has begun
+        // 3. Complete sequence by removing selection interface
         Destroy(gameObject);
     }
 }
