@@ -2647,7 +2647,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48869e2fe76118e42884267d3d657a75, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlanetFusion
-  growthIncrement: 100
+  growthIncrement: 10
   maxScale: 200
   Stage2text: {fileID: 76172460}
   lifeSpawner: {fileID: 893422574}
