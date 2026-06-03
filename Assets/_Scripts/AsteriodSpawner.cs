@@ -14,8 +14,16 @@ public class AsteroidSpawner : MonoBehaviour {
     public float asteroidSpeed = 5.0f; 
 
     private void Start() {
-        // Begins the spawning loop
+        // Leave this empty now! The script will wait until StartSpawningLoop() is called.
+    }
+
+    /// <summary>
+    /// Public function called by the StartButtonTrigger when a condition block is chosen.
+    /// </summary>
+    public void StartSpawningLoop() {
+        // Begins the spawning loop safely *after* a selection is made
         InvokeRepeating(nameof(SpawnOnlyOne), 0f, secondsBetweenSpawns);
+        Debug.Log("Asteroid Spawner loop has been officially activated!");
     }
 
     private void SpawnOnlyOne() {
@@ -24,7 +32,6 @@ public class AsteroidSpawner : MonoBehaviour {
         // THE SWITCH: Only attack if the Canvas is visible on screen
         bool isAttacking = triggerCanvas.activeInHierarchy;
 
-       
         Vector3 randomPos = transform.position + new Vector3(
             Random.Range(-spawnRange, spawnRange),
             Random.Range(-spawnRange, spawnRange),
