@@ -6,33 +6,30 @@ public class StartButtonTrigger : MonoBehaviour
     [SerializeField] private AsteroidSpawner asteroidSpawner;
     [SerializeField] private PlanetManager planetManager;
     [SerializeField] private GameObject planetObject;
+    [SerializeField] private GameObject stage1Text; // ADDED: Slot for your Stage 1 text
 
     [Header("Menu Elements to Clean Up")]
     [SerializeField] private GameObject startText;
-    [SerializeField] private GameObject startBText; // Text on the button
+    [SerializeField] private GameObject startBText; 
     [SerializeField] private GameObject blockA;
     [SerializeField] private GameObject blockB;
 
     private bool gameStarted = false;
 
-    // Fail-Safe 1: This fires automatically for solid, physical collisions
     private void OnCollisionEnter(Collision collision)
     {
         EvaluateCollision(collision.gameObject);
     }
 
-    // Fail-Safe 2: This fires automatically if colliders accidentally switch to triggers
     private void OnTriggerEnter(Collider other)
     {
         EvaluateCollision(other.gameObject);
     }
 
-    // Consolidated method to read tags or names without duplicating code
     private void EvaluateCollision(GameObject hitObject)
     {
         if (gameStarted) return;
 
-        // Check by tag or name instead of exact object instances to avoid SDK authority locks
         if (hitObject.CompareTag("ConditionA") || hitObject.name.Contains("A"))
         {
             Debug.Log("Condition A Selection Validated via tag/name match.");
@@ -55,14 +52,16 @@ public class StartButtonTrigger : MonoBehaviour
         if (blockA != null) Destroy(blockA);
         if (blockB != null) Destroy(blockB);
 
-        // 2. Turn on the core gameplay components from before
+        // 2. Turn on the core gameplay components and Stage 1 Text
         if (planetObject != null) planetObject.SetActive(true);
         if (planetManager != null) planetManager.enabled = true;
+        
+        // FIXED: This wakes up your Stage 1 text the exact second the game starts!
+        if (stage1Text != null) stage1Text.SetActive(true); 
         
         if (asteroidSpawner != null) 
         {
             asteroidSpawner.enabled = true;
-            // FIXED: Explicitly commands the spawner to kick off its InvokeRepeating loop now!
             asteroidSpawner.StartSpawningLoop(); 
         }
 
