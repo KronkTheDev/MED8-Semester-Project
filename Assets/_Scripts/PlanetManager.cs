@@ -36,8 +36,9 @@ public class PlanetManager : MonoBehaviour
     public GameObject loseCanvas;
     public GameObject blackOverlay; 
 
-    private bool isPhase2 = false;
-    private bool isPhase3 = false;
+    // FIXED: Made public so the Spawner script can read the actual game state directly!
+    public bool isPhase2 { get; private set; } = false;
+    public bool isPhase3 { get; private set; } = false;
     private bool gameEnded = false;
 
     void Start() {
@@ -75,6 +76,9 @@ public class PlanetManager : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Asteroid")) {
             if (!isPhase2) {
+                TelemetryLogger logger = GetComponent<TelemetryLogger>();
+                if (logger != null) logger.LogCollision();
+
                 if (!scaleCounterActivated) {
                     scaleCounterActivated = true;
                     if (scaleCounterCanvas != null && !hideVisualCues) {
@@ -113,10 +117,15 @@ public class PlanetManager : MonoBehaviour
     }
 
     void TransitionToPhase2() {
+        TelemetryLogger logger = GetComponent<TelemetryLogger>();
+        if (logger != null) logger.SaveStage1Telemetry();
+
         isPhase2 = true;
         
+        // FIXED: Structural canvas adjustments pulled out of the hideVisualCues gate
+        if (scaleCounterCanvas != null) scaleCounterCanvas.SetActive(false);
+
         if (!hideVisualCues) {
-            if (scaleCounterCanvas != null) scaleCounterCanvas.SetActive(false);
             if (lifeCounterCanvas != null) lifeCounterCanvas.SetActive(true);
             if (Stage2text != null) Stage2text.SetActive(true); 
             UpdateLifeDisplay();
@@ -133,8 +142,9 @@ public class PlanetManager : MonoBehaviour
             if (o.transform.parent != this.transform) Destroy(o);
         }
 
+        if (lifeCounterCanvas != null) lifeCounterCanvas.SetActive(false);
+
         if (!hideVisualCues) {
-            if (lifeCounterCanvas != null) lifeCounterCanvas.SetActive(false);
             if (timerCanvas != null) timerCanvas.SetActive(true);
             if (Stage3text != null) Stage3text.SetActive(true); 
         }

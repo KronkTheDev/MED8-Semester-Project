@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 public class AsteroidSpawner : MonoBehaviour {
     [Header("References")]
@@ -14,45 +15,66 @@ public class AsteroidSpawner : MonoBehaviour {
     public float asteroidSpeed = 5.0f; 
 
     private bool isLoopRunning = false;
+    private PlanetManager planetManager;
+    
+    // Internal list to hold all your discovered life prefabs dynamically
+    private List<GameObject> discoveredLifePrefabs = new List<GameObject>();
 
     private void Start() {
-        // Handled cleanly by OnEnable and StartSpawningLoop
+        planetManager = FindFirstObjectByType<PlanetManager>();
+        LoadLifePrefabsByTag();
     }
 
-    // FIXED: This automatically runs the exact moment PlanetManager calls spawner.SetActive(true) in Phase 3!
+    // Automatically scans the Resources folder for any prefab carrying the "Life" tag
+    private void LoadLifePrefabsByTag() {
+        GameObject[] allResources = Resources.LoadAll<GameObject>("");
+        
+        foreach (GameObject obj in allResources) {
+            if (obj.CompareTag("Life")) {
+                discoveredLifePrefabs.Add(obj);
+            }
+        }
+        
+        Debug.Log($"Spawner Setup: Automatically found and loaded {discoveredLifePrefabs.Count} prefabs tagged 'Life' from Resources!");
+    }
+
     private void OnEnable() {
-        // Only run this automatically if the game has already been kicked off by the main menu button
         if (isLoopRunning) {
             CancelInvoke(nameof(SpawnOnlyOne)); 
             InvokeRepeating(nameof(SpawnOnlyOne), 0.5f, secondsBetweenSpawns);
-            Debug.Log("Phase 3: Asteroid Spawner re-awakened. Hostile loop restarted!");
+            Debug.Log("Phase 3: Spawner re-awakened. Hostile loop restarted!");
         }
     }
 
-    /// <summary>
-    /// Public function called by the StartButtonTrigger when a condition block is chosen.
-    /// </summary>
     public void StartSpawningLoop() {
         if (isLoopRunning) return;
         
         isLoopRunning = true;
         CancelInvoke(nameof(SpawnOnlyOne)); 
         InvokeRepeating(nameof(SpawnOnlyOne), 0f, secondsBetweenSpawns);
-        Debug.Log("Asteroid Spawner loop has been officially activated!");
+        Debug.Log("Spawner loop has been officially activated!");
     }
 
-    // Automatically stops and purges all scheduled Invoke timers 
-    // the exact millisecond PlanetManager calls SetActive(false)
     private void OnDisable() {
         CancelInvoke(nameof(SpawnOnlyOne));
         Debug.Log("Spawner Disabled: Internal timers completely wiped clean.");
     }
 
     private void SpawnOnlyOne() {
-        if (asteroidPrefab == null || planetTransform == null || triggerCanvas == null) return;
+        if (asteroidPrefab == null || planetTransform == null) return;
+        if (planetManager == null) planetManager = FindFirstObjectByType<PlanetManager>();
 
-        // THE SWITCH: Only attack if the Canvas is visible on screen
-        bool isAttacking = triggerCanvas.activeInHierarchy;
+        GameObject prefabToSpawn = asteroidPrefab;
+        
+        // DYNAMIC SELECTION VIA TAG LIST:
+        if (planetManager != null && planetManager.isPhase2 && !planetManager.isPhase3) {
+            if (discoveredLifePrefabs.Count > 0) {
+                int randomIndex = Random.Range(0, discoveredLifePrefabs.Count);
+                prefabToSpawn = discoveredLifePrefabs[randomIndex];
+            }
+        }
+
+        bool isAttacking = (planetManager != null) ? planetManager.isPhase3 : triggerCanvas.activeInHierarchy;
 
         Vector3 randomPos = transform.position + new Vector3(
             Random.Range(-spawnRange, spawnRange),
@@ -60,16 +82,14 @@ public class AsteroidSpawner : MonoBehaviour {
             Random.Range(-spawnRange, spawnRange)
         );
 
-        GameObject newAsteroid = Instantiate(asteroidPrefab, randomPos, Quaternion.identity);
-        Rigidbody rb = newAsteroid.GetComponent<Rigidbody>();
+        GameObject newObject = Instantiate(prefabToSpawn, randomPos, Quaternion.identity);
+        Rigidbody rb = newObject.GetComponent<Rigidbody>();
 
         if (rb != null) {
             if (isAttacking) {
-                // PHASE 3: Aim and fire toward the planet
                 Vector3 direction = (planetTransform.position - randomPos).normalized;
                 rb.linearVelocity = direction * asteroidSpeed; 
             } else {
-                // PHASE 1: Float in place (Normal behavior)
                 rb.linearVelocity = Vector3.zero;
                 rb.angularVelocity = Random.insideUnitSphere * 2f; 
             }
